@@ -1,0 +1,42 @@
+{
+  "name": "58main",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "test": "vue-cli-service build --mode test"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.0.0",
+    "axios": "^0.18.0",
+    "qrcode": "^1.2.2",
+    "prerender-spa-plugin": "^3.4.0",
+    "qs": "^6.5.2",
+    "st-ui": "^1.0.25",
+    "vue": "^2.5.17",
+    "vue-i18n": "^8.1.0",
+    "vue-meta-info": "^0.1.7",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.0.1",
+    "@vue/cli-plugin-eslint": "^3.0.1",
+    "@vue/cli-service": "^3.0.1",
+    "babel-polyfill": "^6.26.0",
+    "bigdecimal": "^0.6.1",
+    "compression-webpack-plugin": "^2.0.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-html": "^4.0.5",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "postcss-import": "^12.0.0",
+    "postcss-url": "^8.0.0",
+    "vue-template-compiler": "^2.5.17",
+    "qrcode": "^1.2.0"
+  }
+}

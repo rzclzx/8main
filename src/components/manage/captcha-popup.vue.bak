@@ -1,0 +1,184 @@
+<template>
+  <div class="login-popup">
+    <div class="bg"></div>
+    <div class="box">
+      <st-row class="header" justify="between" align="center">
+        <h3>{{ title }}</h3>
+        <a @click="close"></a>
+      </st-row>
+      <div id="ali-captcha" class="nc-container"></div>
+      <!--<slot></slot>-->
+    </div>
+  </div>
+</template>
+
+<script>
+  import axios from '~/plugins/axiosConfig'
+  export default {
+    name: 'captcha-popup',
+    props: {
+      title: {
+        type: String,
+        required: true
+      },
+      popupType: String,
+      purpose: {
+        type: Number,
+        required: true
+      },
+      nation: Number,
+      ticketType: {
+        type: String,
+        required: true
+      },
+      callback: {
+        type: Function,
+        required: true
+      },
+      countDown: {
+        type: Function
+      }
+    },
+    data () {
+      return {
+        'appKey': 'FFFF0N0N000000006891',
+        'modelName': 'no-captcha',
+        'nc_token': null,
+        'lang': 'en',
+        'NC_Opt': {}
+      }
+    },
+    mounted () {
+      // 挂载组件是初始化
+      this.init()
+    },
+    computed: {
+      ticket () {
+        return this.$store.state.ticket[this.ticketType]
+      }
+    },
+    methods: {
+      init () {
+        let self = this
+        // 拼接token
+        this.nc_token = [this.appKey, (new Date()).getTime(), Math.random()].join(':')
+        this.NC_Opt = {
+          renderTo: '#ali-captcha',
+          appkey: this.appKey,
+          scene: 'nc_register',
+          token: this.nc_token,
+          customWidth: 300,
+          trans: {'key1': 'code0'},
+          elementID: ['usernameID'],
+          is_Opt: 0,
+          language: this.lang,
+          isEnabled: true,
+          timeout: 3000,
+          times: 5,
+          apimap: {},
+          callback: function (data) {
+            self.callback(true)
+            // 向服务器发送验证
+            axios.post('http://192.168.3.142:9988/test/AFSCheck1', {
+              sessionId: data.csessionid,
+              sig: data.sig,
+              token: self.NC_Opt.token,
+              scene: self.NC_Opt.scene
+            })
+              .then(res => {
+                if (res.data === 'pass_1') {
+                  // 验证成功
+                  // 向页面添加tiket
+                  this.$store.commit('SAVE_TICKET', {
+                    type: self.ticketType,
+                    ticket: res.data.ticket
+                  })
+                  // 验证成功隐藏弹窗
+                  self.callback(true)
+                  // 倒计时
+                  self.countDown()
+                }
+              })
+              .catch()
+            // window.console && console.log(self.nc_token)
+            // window.console && console.log(data.csessionid)
+            // window.console && console.log(data.sig)
+            // 将这三个参数在这里回调服务器的接口，进行服务器的验证
+          }
+        }
+        this.generarte()
+      },
+      generarte () {
+        var nc = new noCaptcha(this.NC_Opt)
+        nc.upLang(this.lang, {
+          _startTEXT: '请按住滑块，拖动到最右边',
+          _yesTEXT: '验证通过',
+          _error300: '哎呀，出错了，点击<a href="javascript:__nc.reset()">刷新</a>再来一次',
+          _errorNetwork: '网络不给力，请<a href="javascript:__nc.reset()">点击刷新</a>'
+        })
+      },
+      close () {
+        this.callback()
+      }
+    }
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="less" scoped>
+  @import "~assets/css/theme";
+  .login-popup {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-width: 460px;
+    height: 100%;
+    /*padding-top: 143px;*/
+    box-shadow: 0px 4px 8px 0px rgba(205, 205, 205, 0.5);
+    z-index: 1100;
+    .bg {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.3);
+      z-index: -1;
+    }
+    .box {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 460px;
+      min-height: 200px;
+      .border-radius();
+      background-color: #fff;
+      box-shadow: 0px 4px 8px 0px rgba(205, 205, 205, 0.5);
+      overflow: hidden;
+      .header {
+        height: 48px;
+        line-height: 48px;
+        padding: 0 10px;
+        background-color: #ffffff;
+        box-shadow: 0 0 10px 0 rgba(89,122,185,0.10);
+        h3 {
+          color: #24324C;
+          font-family: PingFangSC-Regular;
+          font-size: 14px;
+        }
+        a {
+          display: block;
+          width: 16px;
+          height: 16px;
+          background: url("~/assets/img/icon-popupclose.png") no-repeat center;
+        }
+      }
+    }
+  }
+  #ali-captcha {
+    width: 300px;
+    margin: 50px auto;
+  }
+</style>
